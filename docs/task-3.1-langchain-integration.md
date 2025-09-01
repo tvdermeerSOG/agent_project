@@ -169,27 +169,27 @@ class MotivationLetterChain:
         self.skills_matching_chain = self._create_skills_matching_chain(llm)
         self.letter_generation_chain = self._create_letter_generation_chain(llm)
         self.quality_review_chain = self._create_quality_review_chain(llm)
-    
+
     async def generate_letter(self, job: Job, user_profile: UserProfile) -> MotivationLetter:
         # Analyze job requirements
         job_analysis = await self.job_analysis_chain.arun(job=job)
-        
+
         # Match candidate skills
         skills_match = await self.skills_matching_chain.arun(
             job_analysis=job_analysis,
             user_profile=user_profile
         )
-        
+
         # Generate letter
         letter = await self.letter_generation_chain.arun(
             job=job,
             skills_match=skills_match,
             user_profile=user_profile
         )
-        
+
         # Quality review
         quality_score = await self.quality_review_chain.arun(letter=letter)
-        
+
         return MotivationLetter(
             content=letter,
             quality_score=quality_score,

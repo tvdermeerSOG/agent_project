@@ -142,19 +142,19 @@ class Settings(BaseSettings):
     app_name: str = "Job Agent"
     app_version: str = "1.0.0"
     debug: bool = False
-    
+
     # API
     api_v1_prefix: str = "/api/v1"
     allowed_hosts: list[str] = ["*"]
-    
+
     # Logging
     log_level: str = "INFO"
     log_format: str = "json"
-    
+
     # Azure
     azure_openai_endpoint: str
     azure_openai_api_version: str = "2024-02-15-preview"
-    
+
     class Config:
         env_file = ".env"
         case_sensitive = False
@@ -167,7 +167,7 @@ class HealthCheck(BaseModel):
     timestamp: datetime
     version: str
     checks: Dict[str, Any]
-    
+
 class DetailedHealthCheck(HealthCheck):
     database: bool
     azure_openai: bool

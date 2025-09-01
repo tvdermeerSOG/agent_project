@@ -167,11 +167,11 @@ class JobBoardInterface(ABC):
     @abstractmethod
     async def search_jobs(self, query: JobSearchQuery) -> List[Job]:
         pass
-    
+
     @abstractmethod
     async def get_job_details(self, job_id: str) -> Job:
         pass
-    
+
     @abstractmethod
     def get_rate_limit_info(self) -> RateLimitInfo:
         pass
