@@ -1,7 +1,7 @@
-# Task 1.2: Azure Integration Setup
+# Task 1.2: Azure OpenAI Integration Setup
 
 ## Objective
-Configure Azure services integration, specifically Azure OpenAI service connection with managed identity authentication.
+Configure Azure OpenAI service connection using Pydantic settings from config.yaml and azure-identity for authentication.
 
 ## Tasks Breakdown
 
@@ -12,50 +12,43 @@ Configure Azure services integration, specifically Azure OpenAI service connecti
 - [ ] Set default subscription if needed
 - [ ] Test CLI access to target resource group 'generic-rag'
 
-### 1.2.2 Azure OpenAI Service Configuration
-- [ ] Verify access to 'rag-cog' OpenAI service instance
-- [ ] Document service endpoints and model deployments
-- [ ] Identify available models (GPT-4, GPT-3.5-turbo, etc.)
-- [ ] Test basic connectivity to the service
-- [ ] Document API version and capabilities
+### 1.2.2 Configuration Management
+- [ ] Create config.yaml file with Azure OpenAI settings
+- [ ] Implement Pydantic settings classes for configuration
+- [ ] Set up environment-specific config overrides
+- [ ] Add configuration validation
+- [ ] Document required configuration fields
 
-### 1.2.3 Managed Identity Implementation
-- [ ] Research Azure managed identity best practices
-- [ ] Implement Azure credential chain for local development
-- [ ] Configure DefaultAzureCredential for production
-- [ ] Set up environment-specific authentication
-- [ ] Test managed identity token acquisition
-
-### 1.2.4 Azure SDK Integration
-- [ ] Install required Azure packages:
+### 1.2.3 Azure Identity Integration
+- [ ] Install required packages:
   - `azure-identity`
-  - `azure-ai-openai`
-  - `azure-core`
-- [ ] Create Azure service client wrapper
-- [ ] Implement error handling for Azure service calls
-- [ ] Add retry logic and circuit breaker patterns
-- [ ] Configure logging for Azure operations
+  - `openai`
+  - `pydantic-settings`
+  - `pyyaml`
+- [ ] Implement DefaultAzureCredential for authentication
+- [ ] Create Azure OpenAI client with managed identity
+- [ ] Test credential acquisition locally
 
-### 1.2.5 Configuration Management
-- [ ] Create Azure-specific configuration classes
-- [ ] Set up environment variable management
-- [ ] Implement secure credential storage
-- [ ] Create configuration validation
-- [ ] Add environment-specific overrides
+### 1.2.4 OpenAI Service Integration
+- [ ] Create OpenAI service wrapper using Azure credentials
+- [ ] Implement basic chat completion functionality
+- [ ] Add error handling for service calls
+- [ ] Configure logging for operations
+- [ ] Test connectivity to Azure OpenAI service
 
 ## Deliverables
 1. Working Azure CLI authentication
 2. Functional Azure OpenAI service connection
-3. Proper managed identity implementation
-4. Azure SDK integration wrapper
-5. Secure configuration management
+3. Pydantic settings classes for configuration management
+4. config.yaml file with Azure OpenAI settings
+5. OpenAI service wrapper with Azure identity authentication
 
 ## Acceptance Criteria
-- [ ] Can successfully authenticate to Azure
-- [ ] Can connect to 'rag-cog' OpenAI service
-- [ ] Managed identity works in both local and production environments
-- [ ] Azure SDK calls work with proper error handling
-- [ ] Configuration is secure and environment-aware
+- [ ] Can successfully authenticate to Azure using DefaultAzureCredential
+- [ ] Can connect to Azure OpenAI service using settings from config.yaml
+- [ ] Pydantic settings validate configuration properly
+- [ ] OpenAI service calls work with proper error handling
+- [ ] Configuration supports environment-specific overrides
 
 ## Dependencies
 - Task 1.1 (Project Setup) completed
@@ -68,54 +61,88 @@ Configure Azure services integration, specifically Azure OpenAI service connecti
 
 ## Security Considerations
 - Never commit Azure credentials to version control
-- Use managed identity in production
-- Implement proper token caching
-- Add audit logging for Azure service calls
+- Use DefaultAzureCredential for authentication
+- Store sensitive configuration in environment variables
+- Add audit logging for OpenAI service calls
 - Follow Azure security best practices
 
 ## Files to Create/Modify
 ```
+config.yaml                    # Configuration file with Azure OpenAI settings
+
 src/job_agent/
 ├── services/
 │   ├── __init__.py
-│   ├── azure_client.py
-│   └── openai_service.py
+│   └── openai_service.py     # OpenAI service wrapper
 ├── core/
 │   ├── __init__.py
-│   ├── config.py
-│   └── auth.py
+│   └── config.py             # Pydantic settings classes
 └── utils/
     ├── __init__.py
-    └── azure_utils.py
+    └── azure_utils.py        # Azure credential utilities
 
 tests/
 ├── unit/
-│   ├── test_azure_client.py
-│   └── test_config.py
+│   ├── test_config.py        # Test configuration loading
+│   └── test_openai_service.py # Test OpenAI service
 └── integration/
-    └── test_azure_integration.py
+    └── test_azure_openai.py  # Integration tests
 ```
 
 ## Configuration Example
+
+### config.yaml
+```yaml
+azure_openai:
+  endpoint: "https://rag-cog.openai.azure.com/"
+  api_version: "2024-02-15-preview"
+  deployment_name: "gpt-4"  # Model deployment name
+  model: "gpt-4"
+  max_tokens: 4096
+  temperature: 0.7
+
+azure:
+  resource_group: "generic-rag"
+  subscription: "Sogeti AI Team"
+```
+
+### Pydantic Settings Class
 ```python
-# Azure OpenAI Configuration
-AZURE_OPENAI_ENDPOINT = "https://rag-cog.openai.azure.com/"
-AZURE_OPENAI_API_VERSION = "2024-02-15-preview"
-AZURE_RESOURCE_GROUP = "generic-rag"
-AZURE_SUBSCRIPTION = "Sogeti AI Team"
+from pydantic import BaseSettings
+from typing import Optional
+
+class AzureOpenAISettings(BaseSettings):
+    endpoint: str
+    api_version: str
+    deployment_name: str
+    model: str
+    max_tokens: Optional[int] = 4096
+    temperature: Optional[float] = 0.7
+
+    class Config:
+        env_prefix = "AZURE_OPENAI_"
+
+class AzureSettings(BaseSettings):
+    resource_group: str
+    subscription: str
+
+    class Config:
+        env_prefix = "AZURE_"
 ```
 
 ## Testing Strategy
-- Unit tests for configuration classes
-- Integration tests for Azure service connectivity
-- Mock Azure services for local testing
+- Unit tests for Pydantic settings classes
+- Unit tests for OpenAI service wrapper
+- Integration tests for Azure OpenAI connectivity
+- Mock Azure credentials for local testing
 - End-to-end tests for authentication flow
-- Performance tests for service calls
+- Configuration validation tests
 
 ## Troubleshooting Checklist
 - [ ] Azure CLI authenticated and configured
 - [ ] Correct subscription selected
 - [ ] Proper permissions to OpenAI service
 - [ ] Network connectivity to Azure services
-- [ ] Environment variables properly set
-- [ ] Managed identity configured correctly
+- [ ] config.yaml file exists and is valid
+- [ ] Environment variables properly set (if overriding config)
+- [ ] DefaultAzureCredential can acquire tokens
