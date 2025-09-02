@@ -1,8 +1,42 @@
 # Task 1.3: Core FastAPI Application
 
 ## Objective
-Create the foundational FastAPI application with proper structure, configuration management, health checks, logging, and testing framework.
+Create the foundational FastAPI application with proper structure, configuration management, health checks, logging, and testing framework.## Configuration Enhancement
 
+### Enhanced config.yaml Structure
+```yaml
+# Existing Azure configuration (from Task 1.2)
+azure_openai:
+  endpoint: "https://rag-cog.openai.azure.com/"
+  api_version: "2024-02-15-preview"
+  deployment_name: "gpt-4o-mini"
+  model: "gpt-4o-mini"
+  max_tokens: 4096
+  temperature: 0.7
+
+azure:
+  resource_group: "generic-rag"
+  subscription: "Sogeti AI Team"
+
+# New FastAPI configuration
+api:
+  host: "0.0.0.0"
+  port: 8000
+  cors_origins: ["*"]
+  docs_url: "/docs"
+  redoc_url: "/redoc"
+
+logging:
+  level: "INFO"
+  format: "json"
+  file: null
+
+health_checks:
+  cache_ttl: 30  # seconds
+  timeout: 5     # seconds
+```
+
+### Integration with Existing Components
 ## Tasks Breakdown
 
 ### 1.3.1 FastAPI Application Structure
@@ -23,19 +57,19 @@ Create the foundational FastAPI application with proper structure, configuration
 - [ ] Add API request/response models
 
 ### 1.3.3 Configuration Management
-- [ ] Create comprehensive configuration classes
-- [ ] Implement environment-based configuration
-- [ ] Add configuration validation with Pydantic
-- [ ] Set up secrets management
-- [ ] Create configuration testing utilities
+- [ ] Enhance existing Pydantic configuration classes
+- [ ] Add FastAPI-specific settings to existing Settings class
+- [ ] Integrate with existing config.yaml structure
+- [ ] Add API-specific configuration validation
+- [ ] Enhance configuration testing utilities
 
 ### 1.3.4 Health Check Implementation
 - [ ] Create basic health check endpoint
 - [ ] Add detailed health checks:
-  - Database connectivity
-  - Azure OpenAI service status
+  - Azure OpenAI service status (using existing service)
   - External job board APIs
   - System resource monitoring
+  - Configuration validation
 - [ ] Implement health check aggregation
 - [ ] Add health check caching
 
@@ -70,9 +104,11 @@ Create the foundational FastAPI application with proper structure, configuration
 - [ ] Configuration is properly validated
 
 ## Dependencies
-- Task 1.1 (Project Setup) completed
-- Task 1.2 (Azure Integration) completed
-- UV package management working
+- Task 1.1 (Project Setup) completed ✅
+- Task 1.2 (Azure Integration) completed ✅
+- UV package management working ✅
+- Existing Pydantic configuration system ✅
+- Azure OpenAI service integration ✅
 
 ## Estimated Time
 **4-5 days**
@@ -80,49 +116,50 @@ Create the foundational FastAPI application with proper structure, configuration
 ## Key Packages
 ```toml
 [project.dependencies]
-fastapi = "^0.104.0"
-uvicorn = "^0.24.0"
-pydantic = "^2.5.0"
-pydantic-settings = "^2.1.0"
-structlog = "^23.2.0"
-httpx = "^0.25.0"
+fastapi = "^0.116.0"           # Latest stable version
+uvicorn = "^0.35.0"            # Latest stable version
+pydantic = "^2.11.0"           # Already installed
+pydantic-settings = "^2.10.0"  # Already installed
+structlog = "^25.4.0"          # Already installed
+httpx = "^0.28.0"              # Already installed
+python-multipart = "^0.0.20"   # For form data handling
 ```
 
 ## Files to Create/Modify
 ```
 src/job_agent/
 ├── __init__.py
-├── main.py
-├── app.py
+├── main.py                    # Update existing entry point
+├── app.py                     # New FastAPI application factory
 ├── api/
 │   ├── __init__.py
-│   ├── deps.py
+│   ├── deps.py               # Dependency injection
 │   ├── v1/
 │   │   ├── __init__.py
-│   │   ├── health.py
-│   │   ├── users.py
-│   │   ├── jobs.py
-│   │   └── applications.py
-│   └── middleware.py
+│   │   ├── health.py         # Health check endpoints
+│   │   ├── users.py          # User management
+│   │   ├── jobs.py           # Job management
+│   │   └── applications.py   # Application workflow
+│   └── middleware.py         # Custom middleware
 ├── core/
 │   ├── __init__.py
-│   ├── config.py
-│   ├── logging.py
-│   └── health.py
+│   ├── config.py             # Enhance existing configuration
+│   ├── logging.py            # New logging infrastructure
+│   └── health.py             # Health check logic
 └── models/
     ├── __init__.py
-    ├── api.py
-    └── health.py
+    ├── api.py                # API request/response models
+    └── health.py             # Health check models
 
 tests/
-├── conftest.py
+├── conftest.py               # Update existing test configuration
 ├── unit/
-│   ├── test_config.py
-│   ├── test_health.py
+│   ├── test_config.py        # Enhance existing config tests
+│   ├── test_health.py        # New health check tests
 │   └── api/
-│       └── test_health.py
+│       └── test_health.py    # API endpoint tests
 └── integration/
-    └── test_api_integration.py
+    └── test_api_integration.py # FastAPI integration tests
 ```
 
 ## API Endpoints Structure
@@ -137,27 +174,37 @@ tests/
 
 ## Configuration Example
 ```python
+# Enhanced Settings class building on existing structure
 class Settings(BaseSettings):
-    # Application
+    """Application settings."""
+
+    model_config = ConfigDict(env_file=".env", case_sensitive=False, extra="ignore")
+
+    # Application (existing)
     app_name: str = "Job Agent"
-    app_version: str = "1.0.0"
+    app_version: str = "0.1.0"
     debug: bool = False
 
-    # API
+    # API (existing + enhanced)
     api_v1_prefix: str = "/api/v1"
     allowed_hosts: list[str] = ["*"]
+    cors_origins: list[str] = ["*"]
+    docs_url: str = "/docs"
+    redoc_url: str = "/redoc"
 
-    # Logging
+    # Logging (existing + enhanced)
     log_level: str = "INFO"
     log_format: str = "json"
+    log_file: Optional[str] = None
 
-    # Azure
-    azure_openai_endpoint: str
-    azure_openai_api_version: str = "2024-02-15-preview"
+    # Server
+    host: str = "0.0.0.0"
+    port: int = 8000
+    reload: bool = False
 
-    class Config:
-        env_file = ".env"
-        case_sensitive = False
+    # Azure configurations (existing)
+    azure_openai: Optional[AzureOpenAISettings] = None
+    azure: Optional[AzureSettings] = None
 ```
 
 ## Health Check Example
@@ -169,11 +216,25 @@ class HealthCheck(BaseModel):
     checks: Dict[str, Any]
 
 class DetailedHealthCheck(HealthCheck):
-    database: bool
-    azure_openai: bool
-    job_boards: Dict[str, bool]
-    system_resources: Dict[str, Any]
+    azure_openai: bool                    # Using existing Azure OpenAI service
+    configuration: bool                   # Validate config.yaml loading
+    job_boards: Dict[str, bool]          # External APIs (future)
+    system_resources: Dict[str, Any]     # Memory, CPU, disk
 ```
+
+## Integration with Existing Components
+
+### Leveraging Task 1.2 Implementation
+- **Configuration System**: Build upon existing Pydantic settings with config.yaml support
+- **Azure OpenAI Service**: Integrate existing `AzureOpenAIService` for health checks and future endpoints
+- **Credential Management**: Use existing `AzureCredentialManager` for secure authentication
+- **Testing Framework**: Extend existing test suite with 84% coverage
+
+### Health Check Integration
+The health check system will utilize:
+- `get_openai_service().test_connection()` for Azure OpenAI status
+- `settings.azure_openai` configuration validation
+- `azure_credential_manager.test_credential()` for authentication verification
 
 ## Testing Strategy
 - Unit tests for all core components
@@ -184,8 +245,9 @@ class DetailedHealthCheck(HealthCheck):
 - Mock external dependencies
 
 ## Performance Considerations
-- Async/await patterns throughout
-- Connection pooling for external services
-- Request/response caching where appropriate
-- Background task processing setup
+- Async/await patterns throughout (building on existing async Azure OpenAI service)
+- Reuse existing `AzureOpenAIService` singleton pattern for connection pooling
+- Request/response caching where appropriate (especially for health checks)
+- Background task processing setup for future job polling
 - Resource monitoring and optimization
+- Leverage existing Azure credential caching from `DefaultAzureCredential`
