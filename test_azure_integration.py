@@ -6,17 +6,13 @@ Run this script to test the Azure OpenAI connection and functionality.
 
 import asyncio
 import sys
-from pathlib import Path
-
-# Add src to path for imports
-sys.path.insert(0, str(Path(__file__).parent / "src"))
 
 from job_agent.core.config import settings
 from job_agent.services.openai_service import get_openai_service
 from job_agent.utils.azure_utils import azure_credential_manager
 
 
-async def main():
+async def main() -> bool:
     """Test Azure OpenAI integration."""
     print("🔧 Azure OpenAI Integration Test")
     print("=" * 40)
@@ -35,7 +31,7 @@ async def main():
     # Test 2: Azure credential
     print("\n2. Testing Azure credential...")
     try:
-        credential = azure_credential_manager.get_credential()
+        azure_credential_manager.get_credential()
         print("   ✓ Azure credential acquired")
     except Exception as e:
         print(f"   ✗ Azure credential failed: {e}")

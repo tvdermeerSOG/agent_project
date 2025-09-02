@@ -161,9 +161,6 @@ class TestConfigurationValidation:
 
     def test_environment_variable_override(self):
         """Test that environment variables can override config.yaml settings."""
-        original_endpoint = (
-            settings.azure_openai.endpoint if settings.azure_openai else None
-        )
 
         with patch.dict(
             os.environ,
@@ -177,7 +174,7 @@ class TestConfigurationValidation:
             # Create new settings instance to pick up environment variables
             from job_agent.core.config import AzureOpenAISettings
 
-            env_settings = AzureOpenAISettings()
+            env_settings = AzureOpenAISettings()  # type: ignore[call-arg]
 
             assert env_settings.endpoint == "https://test-override.openai.azure.com/"
             assert env_settings.api_version == "2024-03-01-preview"

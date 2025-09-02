@@ -3,7 +3,7 @@
 import os
 from unittest.mock import mock_open, patch
 
-from pydantic import ConfigDict
+from pydantic_settings import SettingsConfigDict
 
 from job_agent.core.config import AzureOpenAISettings, AzureSettings, Settings
 
@@ -54,7 +54,7 @@ class TestAzureOpenAISettings:
                 "AZURE_OPENAI_TEMPERATURE": "0.9",
             },
         ):
-            settings = AzureOpenAISettings()
+            settings = AzureOpenAISettings()  # type: ignore[call-arg]
 
             assert settings.endpoint == "https://env.openai.azure.com/"
             assert settings.api_version == "2024-03-01"
@@ -85,7 +85,7 @@ class TestAzureSettings:
                 "AZURE_SUBSCRIPTION": "env-subscription",
             },
         ):
-            settings = AzureSettings()
+            settings = AzureSettings()  # type: ignore[call-arg]
 
             assert settings.resource_group == "env-rg"
             assert settings.subscription == "env-subscription"
@@ -115,7 +115,9 @@ class TestSettings:
 
                 # Create a clean config without env_file
                 original_config = Settings.model_config
-                Settings.model_config = ConfigDict(case_sensitive=False, extra="ignore")
+                Settings.model_config = SettingsConfigDict(
+                    case_sensitive=False, extra="ignore"
+                )
 
                 try:
                     settings = Settings()
@@ -147,21 +149,21 @@ azure:
   subscription: "yaml-subscription"
 """
 
-        with patch("builtins.open", mock_open(read_data=yaml_content)):
-            with patch("pathlib.Path.exists", return_value=True):
-                settings = Settings()
+        with (
+            patch("pathlib.Path.open", mock_open(read_data=yaml_content)),
+            patch("pathlib.Path.exists", return_value=True),
+        ):
+            settings = Settings()
 
-                assert settings.azure_openai is not None
-                assert (
-                    settings.azure_openai.endpoint == "https://yaml.openai.azure.com/"
-                )
-                assert settings.azure_openai.deployment_name == "gpt-4-yaml"
-                assert settings.azure_openai.max_tokens == 3000
-                assert settings.azure_openai.temperature == 0.8
+            assert settings.azure_openai is not None
+            assert settings.azure_openai.endpoint == "https://yaml.openai.azure.com/"
+            assert settings.azure_openai.deployment_name == "gpt-4-yaml"
+            assert settings.azure_openai.max_tokens == 3000
+            assert settings.azure_openai.temperature == 0.8
 
-                assert settings.azure is not None
-                assert settings.azure.resource_group == "yaml-rg"
-                assert settings.azure.subscription == "yaml-subscription"
+            assert settings.azure is not None
+            assert settings.azure.resource_group == "yaml-rg"
+            assert settings.azure.subscription == "yaml-subscription"
 
     def test_settings_yaml_loading_file_not_found(self):
         """Test YAML configuration when file doesn't exist."""
@@ -175,18 +177,18 @@ azure:
         """Test YAML configuration with invalid YAML content."""
         invalid_yaml = "invalid: yaml: content: ["
 
-        with patch("builtins.open", mock_open(read_data=invalid_yaml)):
-            with patch("pathlib.Path.exists", return_value=True):
-                with patch("builtins.print") as mock_print:
-                    settings = Settings()
+        with (
+            patch("pathlib.Path.open", mock_open(read_data=invalid_yaml)),
+            patch("pathlib.Path.exists", return_value=True),
+            patch("builtins.print") as mock_print,
+        ):
+            settings = Settings()
 
-                    # Should handle the error gracefully
-                    assert settings.azure_openai is None
-                    assert settings.azure is None
-                    mock_print.assert_called_once()
-                    assert "Warning: Could not load config.yaml" in str(
-                        mock_print.call_args
-                    )
+            # Should handle the error gracefully
+            assert settings.azure_openai is None
+            assert settings.azure is None
+            mock_print.assert_called_once()
+            assert "Warning: Could not load config.yaml" in str(mock_print.call_args)
 
     def test_settings_yaml_loading_missing_sections(self):
         """Test YAML configuration with missing sections."""
@@ -195,9 +197,11 @@ some_other_config:
   value: "test"
 """
 
-        with patch("builtins.open", mock_open(read_data=yaml_content)):
-            with patch("pathlib.Path.exists", return_value=True):
-                settings = Settings()
+        with (
+            patch("pathlib.Path.open", mock_open(read_data=yaml_content)),
+            patch("pathlib.Path.exists", return_value=True),
+        ):
+            settings = Settings()
 
-                assert settings.azure_openai is None
-                assert settings.azure is None
+            assert settings.azure_openai is None
+            assert settings.azure is None

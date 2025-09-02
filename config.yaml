@@ -9,3 +9,32 @@ azure_openai:
 azure:
   resource_group: "generic-rag"
   subscription: "Sogeti AI Team"
+
+# FastAPI configuration
+api:
+  host: "0.0.0.0"
+  port: 8000
+  cors_origins: ["*"]
+  docs_url: "/docs"
+  redoc_url: "/redoc"
+
+# Job data configuration
+jobs:
+  data_directory: "data/jobs"
+  file_format: "markdown"
+  refresh_interval: 300  # seconds
+
+# Future job board integration (placeholder)
+job_board:
+  endpoint: null  # To be configured later
+  api_key: null   # To be configured later
+  poll_interval: 3600  # seconds
+
+logging:
+  level: "INFO"
+  format: "json"
+  file: null
+
+health_checks:
+  cache_ttl: 30  # seconds
+  timeout: 5     # seconds

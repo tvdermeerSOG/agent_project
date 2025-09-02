@@ -1,7 +1,6 @@
 """Azure utilities for authentication and credential management."""
 
 import logging
-from typing import Optional
 
 from azure.core.credentials import TokenCredential
 from azure.identity import DefaultAzureCredential
@@ -14,7 +13,7 @@ class AzureCredentialManager:
 
     def __init__(self) -> None:
         """Initialize the credential manager."""
-        self._credential: Optional[TokenCredential] = None
+        self._credential: TokenCredential | None = None
 
     def get_credential(self) -> TokenCredential:
         """Get Azure credential using DefaultAzureCredential.
@@ -50,7 +49,7 @@ class AzureCredentialManager:
         try:
             credential = self.get_credential()
             # Test token acquisition with Azure Resource Manager scope
-            token = credential.get_token("https://management.azure.com/.default")
+            credential.get_token("https://management.azure.com/.default")
             logger.info("Azure credential test successful")
             return True
         except Exception as e:
