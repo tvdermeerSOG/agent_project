@@ -1,5 +1,5 @@
 azure_openai:
-  endpoint: "https://rag-cog.openai.azure.com/"
+  endpoint: "https://rag-cog-zr0d8.openai.azure.com"
   api_version: "2024-02-15-preview"
   deployment_name: "gpt-4o-mini"  # Model deployment name
   model: "gpt-4o-mini"
