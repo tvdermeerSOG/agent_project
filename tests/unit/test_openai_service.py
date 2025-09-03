@@ -64,8 +64,8 @@ class TestAzureOpenAIService:
         """Test client property creates Azure OpenAI client."""
         service = AzureOpenAIService(openai_settings, mock_credential)
 
-        # Access client property
-        client = service.client
+        # Access client property to trigger initialization
+        _ = service.client
 
         # Verify credential.get_token was called with correct scope
         mock_credential.get_token.assert_called_once_with(
@@ -252,14 +252,16 @@ class TestGetOpenAIService:
 
     def test_get_openai_service_creates_instance(self):
         """Test get_openai_service creates service instance."""
-        with patch("job_agent.services.openai_service._openai_service", None):
-            with patch(
+        with (
+            patch("job_agent.services.openai_service._openai_service", None),
+            patch(
                 "job_agent.services.openai_service.AzureOpenAIService"
-            ) as mock_service:
-                result = get_openai_service()
+            ) as mock_service,
+        ):
+            result = get_openai_service()
 
-                mock_service.assert_called_once()
-                assert result == mock_service.return_value
+            mock_service.assert_called_once()
+            assert result == mock_service.return_value
 
     def test_get_openai_service_reuses_instance(self):
         """Test get_openai_service reuses existing instance."""

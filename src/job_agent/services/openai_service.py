@@ -1,13 +1,24 @@
 """Azure OpenAI service integration."""
 
 import logging
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any
 
 from azure.core.credentials import TokenCredential
 from openai import AzureOpenAI
 
-from ..core.config import AzureOpenAISettings, settings
-from ..utils.azure_utils import azure_credential_manager
+if TYPE_CHECKING:
+    try:
+        from openai.types.chat import ChatCompletionMessageParam
+    except ImportError:
+        ChatCompletionMessageParam = dict[str, Any]  # fallback for type checking
+else:
+    try:
+        from openai.types.chat import ChatCompletionMessageParam
+    except ImportError:
+        ChatCompletionMessageParam = dict[str, Any]  # fallback for runtime
+
+from job_agent.core.config import AzureOpenAISettings, settings
+from job_agent.utils.azure_utils import azure_credential_manager
 
 logger = logging.getLogger(__name__)
 
@@ -17,8 +28,8 @@ class AzureOpenAIService:
 
     def __init__(
         self,
-        openai_settings: Optional[AzureOpenAISettings] = None,
-        credential: Optional[TokenCredential] = None,
+        openai_settings: AzureOpenAISettings | None = None,
+        credential: TokenCredential | None = None,
     ) -> None:
         """Initialize the Azure OpenAI service.
 
@@ -31,7 +42,7 @@ class AzureOpenAIService:
             raise ValueError("Azure OpenAI settings are required")
 
         self.credential = credential or azure_credential_manager.get_credential()
-        self._client: Optional[AzureOpenAI] = None
+        self._client: AzureOpenAI | None = None
 
     @property
     def client(self) -> AzureOpenAI:
@@ -42,6 +53,9 @@ class AzureOpenAIService:
         """
         if self._client is None:
             try:
+                if not self.settings:
+                    raise ValueError("Azure OpenAI settings are required")
+
                 # Get token for Azure OpenAI scope
                 token = self.credential.get_token(
                     "https://cognitiveservices.azure.com/.default"
@@ -61,9 +75,9 @@ class AzureOpenAIService:
 
     async def chat_completion(
         self,
-        messages: list[dict[str, str]],
-        max_tokens: Optional[int] = None,
-        temperature: Optional[float] = None,
+        messages: list["ChatCompletionMessageParam"],
+        max_tokens: int | None = None,
+        temperature: float | None = None,
         **kwargs: Any,
     ) -> str:
         """Generate a chat completion using Azure OpenAI.
@@ -81,6 +95,9 @@ class AzureOpenAIService:
             Exception: If completion fails
         """
         try:
+            if not self.settings:
+                raise ValueError("Azure OpenAI settings are required")
+
             response = self.client.chat.completions.create(
                 model=self.settings.deployment_name,
                 messages=messages,
@@ -96,7 +113,7 @@ class AzureOpenAIService:
             logger.info(
                 f"Chat completion successful, tokens used: {response.usage.total_tokens if response.usage else 'unknown'}"
             )
-            return content
+            return str(content)
 
         except Exception as e:
             logger.error(f"Chat completion failed: {e}")
@@ -106,7 +123,7 @@ class AzureOpenAIService:
         self,
         job_description: str,
         user_profile: str,
-        company_info: Optional[str] = None,
+        company_info: str | None = None,
     ) -> str:
         """Generate a motivation letter for a job application.
 
@@ -136,7 +153,7 @@ class AzureOpenAIService:
         if company_info:
             user_message += f"\n\nCompany Information:\n{company_info}"
 
-        messages = [
+        messages: list[ChatCompletionMessageParam] = [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_message},
         ]
@@ -154,6 +171,9 @@ class AzureOpenAIService:
             bool: True if connection is successful, False otherwise
         """
         try:
+            if not self.settings:
+                raise ValueError("Azure OpenAI settings are required")
+
             # Simple test completion
             response = self.client.chat.completions.create(
                 model=self.settings.deployment_name,
@@ -174,7 +194,7 @@ class AzureOpenAIService:
 
 
 # Global service instance - will be initialized when first accessed
-_openai_service: Optional[AzureOpenAIService] = None
+_openai_service: AzureOpenAIService | None = None
 
 
 def get_openai_service() -> AzureOpenAIService:
