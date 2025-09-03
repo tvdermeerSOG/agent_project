@@ -18,7 +18,7 @@ Key deliverables:
 ### Task 1.2: Azure Integration Setup
 **File**: `task-1.2-azure-integration.md`
 **Duration**: 2-3 days
-**Status**: 🔄 Pending
+**Status**: ✅ Completed
 
 Key deliverables:
 - Azure CLI authentication
@@ -29,13 +29,24 @@ Key deliverables:
 ### Task 1.3: Core FastAPI Application
 **File**: `task-1.3-fastapi-application.md`
 **Duration**: 4-5 days
-**Status**: 🔄 Pending
+**Status**: ✅ Completed
 
 Key deliverables:
 - FastAPI application structure
 - Health check endpoints
 - Logging infrastructure
 - Testing framework
+
+### Task 1.4: CV Data Management
+**File**: `task-1.4-cv-gathering.md`
+**Duration**: 3-4 days
+**Status**: 🔄 Pending
+
+Key deliverables:
+- CV data storage structure
+- CV parsing and validation
+- Job-CV matching foundation
+- CV management API endpoints
 
 ## Phase 2: Core Functionality (Weeks 3-5)
 
@@ -162,13 +173,13 @@ Key deliverables:
 5. Phase 5 requires most previous phases complete
 
 ## Priority Order
-1. **Critical Path**: Tasks 1.1 → 1.2 → 1.3 → 2.1 → 3.1
+1. **Critical Path**: Tasks 1.1 → 1.2 → 1.3 → 1.4 → 2.1 → 3.1
 2. **Secondary**: Tasks 2.2 → 2.3 → 3.2
 3. **Final Integration**: Tasks 4.1 → 4.2 → 5.x
 
 ## Next Actions
-1. Review and approve task documentation
-2. Start with Task 1.1 implementation
+1. ✅ Tasks 1.1, 1.2, and 1.3 completed and merged to dev
+2. Start Task 1.4 (CV Data Management) implementation
 3. Create remaining task documentation as needed
-4. Set up project tracking and milestones
-5. Begin development following the task sequence
+4. Continue with Task 2.1 after CV foundation is complete
+5. Maintain development momentum following the task sequence
