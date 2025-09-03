@@ -46,11 +46,11 @@ matching:
 ## Tasks Breakdown
 
 ### 1.4.1 CV Data Structure Design
-- [ ] Analyze existing CV format (PDF + Markdown extraction)
-- [ ] Create CV data models based on real CV structure
-- [ ] Design parser for Dutch CV format and terminology
+- [x] Analyze existing CV format (PDF + Markdown extraction)
+- [x] Create CV data models based on real CV structure
+- [x] Design parser for Dutch CV format and terminology
 - [ ] Implement support for multiple file formats (PDF, Markdown, DOCX)
-- [ ] Create CV template based on actual cv1.md structure
+- [x] Create CV template based on actual cv1.md structure
 
 ### 1.4.2 CV Data Storage and Format Support
 - [ ] Support multiple CV file formats (PDF primary, Markdown secondary)
