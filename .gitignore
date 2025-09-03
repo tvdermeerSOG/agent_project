@@ -214,3 +214,7 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Demo and testing files
+demo_*.py
+list_issues.py

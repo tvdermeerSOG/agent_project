@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter
 
-from job_agent.api.v1 import applications, health, jobs
+from job_agent.api.v1 import applications, github, health, jobs
 
 api_router = APIRouter()
 
@@ -10,3 +10,4 @@ api_router = APIRouter()
 api_router.include_router(health.router)
 api_router.include_router(jobs.router)
 api_router.include_router(applications.router)
+api_router.include_router(github.router)
