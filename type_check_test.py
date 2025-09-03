@@ -19,9 +19,12 @@ os.environ.update(
 
 try:
     # This should work at runtime
-    openai_settings = AzureOpenAISettings()  # type: ignore[call-arg]
-    azure_settings = AzureSettings()  # type: ignore[call-arg]
-    print("✓ Type ignore comments work correctly")
+    openai_settings = AzureOpenAISettings()
+    azure_settings = AzureSettings(
+        resource_group=os.environ.get("AZURE_RESOURCE_GROUP", ""),
+        subscription=os.environ.get("AZURE_SUBSCRIPTION", ""),
+    )
+    print("✓ Configuration loading works correctly")
     print(f"OpenAI endpoint: {openai_settings.endpoint}")
     print(f"Azure resource group: {azure_settings.resource_group}")
 except Exception as e:

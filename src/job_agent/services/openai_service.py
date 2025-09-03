@@ -1,11 +1,21 @@
 """Azure OpenAI service integration."""
 
 import logging
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from azure.core.credentials import TokenCredential
 from openai import AzureOpenAI
-from openai.types.chat import ChatCompletionMessageParam
+
+if TYPE_CHECKING:
+    try:
+        from openai.types.chat import ChatCompletionMessageParam
+    except ImportError:
+        ChatCompletionMessageParam = dict[str, Any]  # fallback for type checking
+else:
+    try:
+        from openai.types.chat import ChatCompletionMessageParam
+    except ImportError:
+        ChatCompletionMessageParam = dict[str, Any]  # fallback for runtime
 
 from job_agent.core.config import AzureOpenAISettings, settings
 from job_agent.utils.azure_utils import azure_credential_manager
@@ -65,7 +75,7 @@ class AzureOpenAIService:
 
     async def chat_completion(
         self,
-        messages: list[ChatCompletionMessageParam],
+        messages: list["ChatCompletionMessageParam"],
         max_tokens: int | None = None,
         temperature: float | None = None,
         **kwargs: Any,

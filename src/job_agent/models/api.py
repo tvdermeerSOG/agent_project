@@ -1,6 +1,6 @@
 """API request and response models."""
 
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 
 from pydantic import BaseModel, Field
@@ -12,7 +12,7 @@ class APIResponse(BaseModel):
     success: bool = Field(..., description="Request success status")
     message: str = Field(..., description="Response message")
     timestamp: datetime = Field(
-        default_factory=datetime.utcnow, description="Response timestamp"
+        default_factory=lambda: datetime.now(UTC), description="Response timestamp"
     )
 
 
